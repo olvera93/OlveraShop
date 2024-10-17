@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: OlveraShop
+  data:
+    mongodb:
+      uri: mongodb+srv://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}?retryWrites=true&w=majority
+  profiles:
+    active: dev
+
+  app:
+    jwtSecret: ${SPRING_APP_JWT_SECRET}
+    jwtExpirationMs: ${SPRING_APP_JWT_EXPIRATION_MS}
+
+
+
+server:
+  port: 8081
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-exception: true
+    include-stacktrace: never
+  compression:
+    enabled: true
+    mime-types: text/html,text/plain,text/css,application/javascript,application/json
+    min-response-size: 1024
+
+
+# for resilience
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 100
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 10
