@@ -48,8 +48,10 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/swagger-resources/*",
                                         "/v3/api-docs/**").permitAll()
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .anyRequest().authenticated()
+                                .requestMatchers("/api/admin/**")
+                                .hasRole("ADMIN")
+                                .anyRequest()
+                                .authenticated()
                 )
                 .addFilterBefore(authenticationJwtTokenFilter(),
                         UsernamePasswordAuthenticationFilter.class)
@@ -58,6 +60,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManager ->
                         sessionManager
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .build();
     }
 

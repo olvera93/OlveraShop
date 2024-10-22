@@ -52,6 +52,56 @@ public class UserService {
                 .build();
     }
 
+    public PageResponse getUserByFirstnameAndLastname(String firstname, String lastname, int pageNo, int pageSize) {
+
+        if (firstname.isEmpty() || lastname.isEmpty()) {
+            throw new RuntimeException("Can't be empty or null");
+        }
+
+        Pageable pageable = PageRequest.of(pageNo > 0 ? pageNo - 1 : 0, pageSize);
+
+        Page<User> users = userRepository.findByFirstnameContainsAndLastnameContains(firstname, lastname, pageable);
+
+        if (users.isEmpty()) {
+            throw new ResourceNotFoundException("User", "Firstname and Lastname", (firstname + lastname));
+        }
+
+        List<UserResponse> userResponses = users.stream()
+                .map(user -> {
+                    Role role = roleRepository.findById(user.getRole().getRoleId()).orElse(null);
+
+                    return UserResponse.builder()
+                            .userId(user.getUserId())
+                            .username(user.getUsername())
+                            .lastname(user.getLastname())
+                            .firstname(user.getFirstname())
+                            .email(user.getEmail())
+                            .mobileNumber(user.getMobileNumber())
+                            .accountNonLocked(user.isAccountNonLocked())
+                            .accountNonExpired(user.isAccountNonExpired())
+                            .credentialsNonExpired(user.isCredentialsNonExpired())
+                            .enabled(user.isEnabled())
+                            .credentialsExpiryDate(user.getCredentialsExpiryDate())
+                            .accountExpiryDate(user.getAccountExpiryDate())
+                            .isTwoFactorEnabled(user.isTwoFactorEnabled())
+                            .roles(role != null
+                                    ? Collections.singletonList(role.getRoleName().name())
+                                    : Collections.emptyList())
+                            .build();
+
+                })
+                .toList();
+
+        return new PageResponse(
+                userResponses,
+                users.getNumber(),
+                users.getSize(),
+                users.getTotalElements(),
+                users.getTotalPages(),
+                users.isLast()
+        );
+    }
+
     public PageResponse getUserByEmail(String email, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo > 0 ? pageNo - 1 : 0, pageSize);
 
@@ -92,6 +142,47 @@ public class UserService {
                 users.isLast()
         );
 
+    }
+
+    public PageResponse getUserByAccountNonLocked(boolean accountNonLocked, int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo > 0 ? pageNo - 1 : 0, pageSize);
+
+        Page<User> users = userRepository.findByAccountNonLocked(accountNonLocked, pageable);
+
+        List<UserResponse> userResponses = users.stream()
+                .map(user -> {
+                    Role role = roleRepository.findById(user.getRole().getRoleId()).orElse(null);
+
+                    return UserResponse.builder()
+                            .userId(user.getUserId())
+                            .username(user.getUsername())
+                            .lastname(user.getLastname())
+                            .firstname(user.getFirstname())
+                            .email(user.getEmail())
+                            .mobileNumber(user.getMobileNumber())
+                            .accountNonLocked(user.isAccountNonLocked())
+                            .accountNonExpired(user.isAccountNonExpired())
+                            .credentialsNonExpired(user.isCredentialsNonExpired())
+                            .enabled(user.isEnabled())
+                            .credentialsExpiryDate(user.getCredentialsExpiryDate())
+                            .accountExpiryDate(user.getAccountExpiryDate())
+                            .isTwoFactorEnabled(user.isTwoFactorEnabled())
+                            .roles(role != null
+                                    ? Collections.singletonList(role.getRoleName().name())
+                                    : Collections.emptyList())
+                            .build();
+                })
+                .toList();
+
+        return new PageResponse(
+                userResponses,
+                users.getNumber(),
+                users.getSize(),
+                users.getTotalElements(),
+                users.getTotalPages(),
+                users.isLast()
+        );
     }
 
 }
