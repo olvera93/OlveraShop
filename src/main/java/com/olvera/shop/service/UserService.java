@@ -7,7 +7,6 @@ import com.olvera.shop.model.Role;
 import com.olvera.shop.model.User;
 import com.olvera.shop.repository.RoleRepository;
 import com.olvera.shop.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,16 +14,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     public UserResponse getUserById(String userId) {
 
@@ -63,7 +64,7 @@ public class UserService {
         Page<User> users = userRepository.findByFirstnameContainsAndLastnameContains(firstname, lastname, pageable);
 
         if (users.isEmpty()) {
-            throw new ResourceNotFoundException("User", "Firstname and Lastname", (firstname + lastname));
+            throw new ResourceNotFoundException("User", "Firstname and Lastname", (firstname + " " + lastname));
         }
 
         List<UserResponse> userResponses = users.stream()
@@ -131,7 +132,7 @@ public class UserService {
                                     : Collections.emptyList())
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         return new PageResponse(
                 userResponses,
