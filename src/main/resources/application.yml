@@ -4,9 +4,6 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}?retryWrites=true&w=majority
-  profiles:
-    active: dev
-
   app:
     jwtSecret: ${SPRING_APP_JWT_SECRET}
     jwtExpirationMs: ${SPRING_APP_JWT_EXPIRATION_MS}
